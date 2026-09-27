@@ -26,6 +26,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Cryptographically Secure Hardware Sensor Entropy Service -->
+        <service
+            android:name=".service.HardwareSensorEntropyService"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>

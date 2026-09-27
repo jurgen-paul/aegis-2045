@@ -1,0 +1,292 @@
+openapi: 3.0.3
+info:
+  title: AGIS 2045 Sovereign Zero-Trust & ECTT Telemetry API
+  description: |
+    Formal REST & ECTT (Encrypted Cryptographic Telemetry Transmission) Security Specification for the AGIS 2045 Zero-Trust Cyber-Node.
+    Enforces NIST FIPS 203 (Kyber-1024) Key Encapsulation, FIPS 204 (Dilithium-5) Non-Repudiation Attestation, Laplace Differential Privacy (ε=0.50), and Hardware Enclave Key Management.
+  version: 1.4.0
+  contact:
+    name: AGIS 2045 Sovereign Security Architecture Group
+    email: security@agis2045.local
+servers:
+  - url: https://node.agis2045.local/api/v1
+    description: Primary On-Device Sovereign Cyber-Node Gateway (T-7)
+  - url: https://enclave.agis2045.local/v1
+    description: Isolated Hardware Enclave Boundary Gateway
+
+paths:
+  /enclave/status:
+    get:
+      summary: Retrieve Post-Quantum Hardware Enclave Status
+      description: Returns real-time cryptographic attestation metrics, active Kyber-1024 algorithm, hardware slot, and lattice matrix verification state.
+      operationId: getEnclaveStatus
+      security:
+        - DilithiumTokenAuth: []
+        - BiometricAttestationHeader: []
+      responses:
+        '200':
+          description: Hardware Enclave status successfully verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnclaveStatusResponse'
+        '401':
+          description: Biometric attestation missing or expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityErrorResponse'
+
+  /enclave/rekey:
+    post:
+      summary: Trigger 60-Second Dynamic Key Rotation
+      description: Initiates 4-pass zeroization of previous session keys and derives fresh Kyber-1024 keypair inside hardware StrongBox.
+      operationId: rotateEnclaveKey
+      security:
+        - BiometricAttestationHeader: []
+      responses:
+        '200':
+          description: Enclave key successfully rotated and signed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeyRotationResponse'
+
+  /telemetry/sanitization-scan:
+    post:
+      summary: Execute Deep ECTT Telemetry Sanitization Scan
+      description: Performs 5-stage ingress packet inspection, applies differential privacy noise (ε=0.50), scrubs PII tokens, and generates Dilithium-5 cryptographic proof.
+      operationId: executeSanitizationScan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SanitizationScanRequest'
+      responses:
+        '200':
+          description: Telemetry stream scanned, scrubbed, and attested
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SanitizationScanFeedback'
+        '400':
+          description: Invalid telemetry frame or CRC failure
+        '423':
+          description: Node in Photonic Crimson quarantine
+
+  /threats/quarantine:
+    post:
+      summary: Dispatch Automated Threat Containment
+      description: Engages Photonic Crimson containment barrier, drops active sub-agent threads, and logs incident to immutable audit ledger.
+      operationId: quarantineThreat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThreatQuarantineRequest'
+      responses:
+        '200':
+          description: Threat vector contained and quarantined
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreatQuarantineResponse'
+
+  /audit/ledger:
+    get:
+      summary: Query Cryptographically Chained Audit Ledger
+      description: Retrieves immutable audit log records with Dilithium-5 digital signature proofs and monotonic hash chains.
+      operationId: getAuditLedger
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+        - name: securityTier
+          in: query
+          required: false
+          schema:
+            type: string
+            example: TIER-0 (Post-Quantum Enclave)
+      responses:
+        '200':
+          description: Audit ledger records retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuditLogEntry'
+
+components:
+  securitySchemes:
+    DilithiumTokenAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Dilithium-5-JWT
+      description: NIST FIPS 204 Dilithium-5 attested JSON Web Token signed by Hardware Enclave.
+    BiometricAttestationHeader:
+      type: apiKey
+      in: header
+      name: X-Biometric-Attestation-Token
+      description: Android Jetpack CredentialManager Class 3 Strong Biometric hardware attestation proof.
+
+  schemas:
+    EnclaveStatusResponse:
+      type: object
+      properties:
+        keyId:
+          type: string
+          example: KEY-PQ-8842-KYBER
+        algorithm:
+          type: string
+          example: Kyber-1024 / Dilithium-5 (512-bit)
+        hardwareSlot:
+          type: string
+          example: eUICC Enclave Core #04 [ISOLATED]
+        memoryAddress:
+          type: string
+          example: 0x7FFF_8000_9000_PQE
+        isSealed:
+          type: boolean
+          example: true
+        quantumResistanceScore:
+          type: integer
+          example: 100
+        rotationRemainingSec:
+          type: integer
+          example: 48
+        latticeStatus:
+          type: string
+          example: NIST FIPS 203/204 MATRICES VERIFIED
+
+    KeyRotationResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: SUCCESS_REKEYED
+        newKeyId:
+          type: string
+          example: KEY-PQ-9104-KYBER
+        timestamp:
+          type: integer
+          format: int64
+          example: 1725450000000
+        dilithiumSignature:
+          type: string
+          example: 0xPQC_SEAL_DILITHIUM5_ROTATION_PROOF
+
+    SanitizationScanRequest:
+      type: object
+      properties:
+        isDeepInspection:
+          type: boolean
+          default: true
+        differentialPrivacyEpsilon:
+          type: number
+          format: float
+          default: 0.50
+
+    SanitizationScanFeedback:
+      type: object
+      properties:
+        scanId:
+          type: string
+          example: SCAN-PQC-8419
+        timestamp:
+          type: integer
+          format: int64
+        isEnclaveSealed:
+          type: boolean
+          example: true
+        enclaveKeyAlgorithm:
+          type: string
+          example: Kyber-1024 / Dilithium-5 (512-bit)
+        hardwareSlot:
+          type: string
+          example: eUICC Enclave Core #04 [ISOLATED]
+        memoryAddress:
+          type: string
+          example: 0x7FFF_8000_9000_PQE
+        packetsScanned:
+          type: integer
+          example: 342
+        piiTokensScrubbed:
+          type: integer
+          example: 26
+        threatsNeutralizedCount:
+          type: integer
+          example: 0
+        differentialEpsilon:
+          type: number
+          format: float
+          example: 0.5
+        dilithiumProofDigest:
+          type: string
+          example: 0xPQC_SEAL_99A04B184E32
+        summary:
+          type: string
+          example: Post-Quantum Enclave Status Verified. Zero Telemetry Leaks.
+
+    ThreatQuarantineRequest:
+      type: object
+      required:
+        - threatVector
+        - severity
+      properties:
+        threatVector:
+          type: string
+          example: PROMPT_INJECTION_ENCLAVE_DUMP
+        severity:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, CRITICAL]
+          example: CRITICAL
+
+    ThreatQuarantineResponse:
+      type: object
+      properties:
+        quarantineStatus:
+          type: string
+          example: CONTAINED_PHOTONIC_CRIMSON
+        incidentId:
+          type: string
+          example: INC-2045-884
+        cryptographicProof:
+          type: string
+          example: 0xPQC_SEAL_INCIDENT_PROOF
+
+    AuditLogEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        timestamp:
+          type: integer
+          format: int64
+        eventType:
+          type: string
+          example: TELEMETRY_PQC_SANITIZATION_SCAN
+        securityTier:
+          type: string
+          example: TIER-0 (Post-Quantum Enclave)
+        summary:
+          type: string
+        cryptographicProof:
+          type: string
+        subAgentId:
+          type: string
+
+    SecurityErrorResponse:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          example: BIOMETRIC_CHALLENGE_REQUIRED
+        message:
+          type: string
+          example: Class 3 Biometric attestation required to access Tier 5 Hardware Enclave.

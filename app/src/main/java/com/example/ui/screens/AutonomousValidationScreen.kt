@@ -21,6 +21,7 @@ import com.example.model.ValidationProof
 import com.example.ui.animation.QuantumVolumetricButton
 import com.example.ui.components.PhotonicBadge
 import com.example.ui.components.QuantumGlassCard
+import com.example.ui.components.SanitizationScanControlCard
 import com.example.ui.components.TelemetryThreatDashboard
 import com.example.ui.theme.*
 import com.example.viewmodel.AgisViewModel
@@ -122,6 +123,11 @@ fun AutonomousValidationScreen(
         }
 
         if (activeTab == "SANITIZER") {
+            // Simulated Sanitization Scan & Post-Quantum Enclave Status Feedback
+            item {
+                SanitizationScanControlCard(viewModel = viewModel)
+            }
+
             // Interactive Telemetry Sanitizer
             item {
                 QuantumGlassCard(

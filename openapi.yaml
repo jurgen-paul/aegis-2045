@@ -1,0 +1,230 @@
+openapi: 3.0.3
+info:
+  title: AGIS 2045 Sovereign Zero-Trust & ECTT Telemetry API
+  description: |
+    Formal REST & ECTT (Encrypted Cryptographic Telemetry Transmission) Security Specification for the AGIS 2045 Zero-Trust Cyber-Node.
+    Enforces NIST FIPS 203 (Kyber-1024) Key Encapsulation, FIPS 204 (Dilithium-5) Non-Repudiation Attestation, Laplace Differential Privacy (ε=0.50), and Hardware Enclave Key Management.
+  version: 1.4.0
+  contact:
+    name: AGIS 2045 Sovereign Security Architecture Group
+    email: security@agis2045.local
+servers:
+  - url: https://node.agis2045.local/api/v1
+    description: Primary On-Device Sovereign Cyber-Node Gateway (T-7)
+  - url: https://enclave.agis2045.local/v1
+    description: Isolated Hardware Enclave Boundary Gateway
+
+paths:
+  /enclave/status:
+    get:
+      summary: Retrieve Post-Quantum Hardware Enclave Status
+      description: Returns real-time cryptographic attestation metrics, active Kyber-1024 algorithm, hardware slot, and lattice matrix verification state.
+      operationId: getEnclaveStatus
+      security:
+        - DilithiumTokenAuth: []
+        - BiometricAttestationHeader: []
+      responses:
+        '200':
+          description: Hardware Enclave status successfully verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnclaveStatusResponse'
+
+  /enclave/rekey:
+    post:
+      summary: Trigger 60-Second Dynamic Key Rotation
+      description: Initiates 4-pass zeroization of previous session keys and derives fresh Kyber-1024 keypair inside hardware StrongBox.
+      operationId: rotateEnclaveKey
+      security:
+        - BiometricAttestationHeader: []
+      responses:
+        '200':
+          description: Enclave key successfully rotated and signed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeyRotationResponse'
+
+  /telemetry/sanitization-scan:
+    post:
+      summary: Execute Deep ECTT Telemetry Sanitization Scan
+      description: Performs 5-stage ingress packet inspection, applies differential privacy noise (ε=0.50), scrubs PII tokens, and generates Dilithium-5 cryptographic proof.
+      operationId: executeSanitizationScan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SanitizationScanRequest'
+      responses:
+        '200':
+          description: Telemetry stream scanned, scrubbed, and attested
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SanitizationScanFeedback'
+
+  /threats/quarantine:
+    post:
+      summary: Dispatch Automated Threat Containment
+      description: Engages Photonic Crimson containment barrier, drops active sub-agent threads, and logs incident to immutable audit ledger.
+      operationId: quarantineThreat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThreatQuarantineRequest'
+      responses:
+        '200':
+          description: Threat vector contained and quarantined
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreatQuarantineResponse'
+
+  /audit/ledger:
+    get:
+      summary: Query Cryptographically Chained Audit Ledger
+      description: Retrieves immutable audit log records with Dilithium-5 digital signature proofs and monotonic hash chains.
+      operationId: getAuditLedger
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: Audit ledger records retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuditLogEntry'
+
+components:
+  securitySchemes:
+    DilithiumTokenAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Dilithium-5-JWT
+      description: NIST FIPS 204 Dilithium-5 attested JSON Web Token signed by Hardware Enclave.
+    BiometricAttestationHeader:
+      type: apiKey
+      in: header
+      name: X-Biometric-Attestation-Token
+      description: Android Jetpack CredentialManager Class 3 Strong Biometric hardware attestation proof.
+
+  schemas:
+    EnclaveStatusResponse:
+      type: object
+      properties:
+        keyId:
+          type: string
+        algorithm:
+          type: string
+        hardwareSlot:
+          type: string
+        memoryAddress:
+          type: string
+        isSealed:
+          type: boolean
+        quantumResistanceScore:
+          type: integer
+        rotationRemainingSec:
+          type: integer
+        latticeStatus:
+          type: string
+
+    KeyRotationResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        newKeyId:
+          type: string
+        timestamp:
+          type: integer
+          format: int64
+        dilithiumSignature:
+          type: string
+
+    SanitizationScanRequest:
+      type: object
+      properties:
+        isDeepInspection:
+          type: boolean
+        differentialPrivacyEpsilon:
+          type: number
+          format: float
+
+    SanitizationScanFeedback:
+      type: object
+      properties:
+        scanId:
+          type: string
+        timestamp:
+          type: integer
+          format: int64
+        isEnclaveSealed:
+          type: boolean
+        enclaveKeyAlgorithm:
+          type: string
+        hardwareSlot:
+          type: string
+        memoryAddress:
+          type: string
+        packetsScanned:
+          type: integer
+        piiTokensScrubbed:
+          type: integer
+        threatsNeutralizedCount:
+          type: integer
+        differentialEpsilon:
+          type: number
+          format: float
+        dilithiumProofDigest:
+          type: string
+        summary:
+          type: string
+
+    ThreatQuarantineRequest:
+      type: object
+      properties:
+        threatVector:
+          type: string
+        severity:
+          type: string
+
+    ThreatQuarantineResponse:
+      type: object
+      properties:
+        quarantineStatus:
+          type: string
+        incidentId:
+          type: string
+        cryptographicProof:
+          type: string
+
+    AuditLogEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        timestamp:
+          type: integer
+          format: int64
+        eventType:
+          type: string
+        securityTier:
+          type: string
+        summary:
+          type: string
+        cryptographicProof:
+          type: string
+        subAgentId:
+          type: string

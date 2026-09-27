@@ -34,6 +34,7 @@ import com.example.ui.animation.PhotonicSignalPulseIndicator
 import com.example.ui.animation.QuantumFluidCrossfade
 import com.example.ui.components.EnclaveStatusOverlay
 import com.example.ui.components.PhotonicBadge
+import com.example.ui.components.SecurityDocumentationOverlay
 import com.example.ui.screens.*
 import com.example.ui.theme.*
 import com.example.viewmodel.AgisViewModel
@@ -75,6 +76,7 @@ fun AgisMainApp(viewModel: AgisViewModel) {
     val biometrics by viewModel.biometrics.collectAsState()
     val alertMessage by viewModel.systemAlertMessage.collectAsState()
     val isEnclaveOverlayVisible by viewModel.isEnclaveOverlayVisible.collectAsState()
+    val isSecurityDocsVisible by viewModel.isSecurityDocsVisible.collectAsState()
     val isLatticeVerifying by viewModel.isLatticeVerifying.collectAsState()
     val enclaveKey by viewModel.enclaveKey.collectAsState()
     val context = LocalContext.current
@@ -141,6 +143,12 @@ fun AgisMainApp(viewModel: AgisViewModel) {
                                 text = "${biometrics.neuralPulseBpm} BPM",
                                 signalColor = if (threatSeverity == ThreatSeverity.CRITICAL) ContainmentCrimson else PhotonicCyan,
                                 icon = Icons.Default.Favorite
+                            )
+                            PhotonicBadge(
+                                text = "DOCS",
+                                signalColor = PhotonicCyan,
+                                icon = Icons.Default.MenuBook,
+                                modifier = Modifier.clickable { viewModel.setSecurityDocsVisible(true) }
                             )
                             PhotonicBadge(
                                 text = "512-BIT PQ",
@@ -305,6 +313,13 @@ fun AgisMainApp(viewModel: AgisViewModel) {
                 onVerifyLattice = { viewModel.runLatticeIntegrityScan() },
                 onBiometricAuth = { viewModel.authenticateEnclaveWithCredentialManager(context) },
                 onLockEnclave = { viewModel.lockEnclaveStorage() }
+            )
+
+            // Security Documentation & ECTT Technical Library Overlay
+            SecurityDocumentationOverlay(
+                isVisible = isSecurityDocsVisible,
+                viewModel = viewModel,
+                onDismiss = { viewModel.setSecurityDocsVisible(false) }
             )
         }
     }

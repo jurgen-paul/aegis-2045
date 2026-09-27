@@ -278,7 +278,7 @@ fun EnclaveStatusOverlay(
                             "SECURITY CLASS" to "NIST Category 5 (Beyond Shor & Grover)",
                             "HARDWARE ZONE" to enclaveKey.hardwareSlot,
                             "ISOLATED MEMORY" to if (isUnlocked) enclaveKey.memoryAddress else "0x7FFF_XXXX_XXXX_SEALED",
-                            "ENTROPY SOURCE" to "True Random Hardware TRNG Pool",
+                            "ENTROPY SOURCE" to "Hardware Sensor CSPRNG (NIST SP 800-90A)",
                             "THERMAL STABILITY" to "99.98% Coherent (0 Bit Drift)"
                         )
 

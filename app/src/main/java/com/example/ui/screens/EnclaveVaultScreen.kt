@@ -235,6 +235,15 @@ fun EnclaveVaultScreen(
             }
         }
 
+        // Hardware Sensor CSPRNG Background Service HUD
+        item {
+            val entropyState by viewModel.hardwareSensorEntropyState.collectAsState()
+            com.example.ui.components.HardwareSensorEntropyCard(
+                entropyState = entropyState,
+                onForceReseed = { viewModel.forceHardwareSensorReseed() }
+            )
+        }
+
         // 512-bit Dynamic Key Card & Decrypted Storage Sectors
         item {
             QuantumGlassCard(
@@ -338,7 +347,7 @@ fun EnclaveVaultScreen(
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf(
                             Triple("SECTOR-01", "Model Weight Matrix (Kyber-1024 Encrypted)", "Verified Integrity · 0x882B"),
-                            Triple("SECTOR-02", "Hardware Random Entropy Seed Pool", "512-bit / True Entropy TRNG"),
+                            Triple("SECTOR-02", "Hardware Sensor CSPRNG Master Seed Pool", "512-bit / NIST SP 800-90A"),
                             Triple("SECTOR-03", "Zero-Trust Agent Auth Ring Tokens", "3 Active Sub-Agent Signatures")
                         ).forEach { (sectorId, description, status) ->
                             Row(

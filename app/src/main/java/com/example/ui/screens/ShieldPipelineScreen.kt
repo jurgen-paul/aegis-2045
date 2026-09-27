@@ -27,6 +27,7 @@ import com.example.ui.animation.PhotonicSignalPulseIndicator
 import com.example.ui.animation.QuantumVolumetricButton
 import com.example.ui.components.PhotonicBadge
 import com.example.ui.components.QuantumGlassCard
+import com.example.ui.components.SanitizationScanControlCard
 import com.example.ui.theme.*
 import com.example.viewmodel.AgisViewModel
 import java.text.SimpleDateFormat
@@ -348,6 +349,66 @@ fun ShieldPipelineScreen(
                                 )
                             }
                         }
+                    }
+                }
+            }
+
+            // Interactive Sanitization Scan & Post-Quantum Enclave Status Feedback
+            item {
+                SanitizationScanControlCard(viewModel = viewModel)
+            }
+
+            // Technical Documentation & ECTT Protocol Library Affordance
+            item {
+                QuantumGlassCard(
+                    borderColor = PhotonicCyan.copy(alpha = 0.4f),
+                    backgroundColor = SpaceCobaltGlassElevated,
+                    onClick = { viewModel.setSecurityDocsVisible(true) }
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(PhotonicCyan.copy(alpha = 0.15f))
+                                    .border(1.dp, PhotonicCyan.copy(alpha = 0.4f), RoundedCornerShape(8.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.MenuBook,
+                                    contentDescription = "Security Docs",
+                                    tint = PhotonicCyan,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text(
+                                    text = "ECTT & ZERO-TRUST SPECIFICATION",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = PhotonicCyan,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "Inspect STRIDE threat models, Laplace ε=0.5 formulas & NIST specs",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = AmbientWhiteMuted
+                                )
+                            }
+                        }
+                        PhotonicBadge(
+                            text = "OPEN SPEC",
+                            signalColor = PhotonicCyan,
+                            icon = Icons.Default.Article
+                        )
                     }
                 }
             }

@@ -191,6 +191,9 @@ fun TelemetryThreatDashboard(
             }
         }
 
+        // Simulated Sanitization Scan & Post-Quantum Enclave Status Feedback Control
+        SanitizationScanControlCard(viewModel = viewModel)
+
         // Live Action Dispatch Bar
         QuantumGlassCard(
             borderColor = SpaceCobaltGlassBorder,

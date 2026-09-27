@@ -23,10 +23,15 @@ import androidx.compose.ui.unit.sp
 import com.example.model.AgisArchitectureConstants
 import com.example.model.ThreatSeverity
 import com.example.ui.components.BiometricHeader
+import com.example.ui.components.NeuralIntentNodeConnectionGraph
 import com.example.ui.components.PhotonicBadge
 import com.example.ui.components.QuantumGlassCard
+import com.example.ui.components.RechartsTelemetrySanitizationVisualizer
 import com.example.ui.components.SubAgentThreadCard
 import com.example.ui.components.TelemetryAnomalyAlertCenter
+import com.example.ui.components.VolumetricFrostedGlassShowcase
+import com.example.ui.components.VolumetricQuantumGlassSurface
+import com.example.ui.components.QuantumGlassDepthLevel
 import com.example.ui.theme.*
 import com.example.viewmodel.AgisViewModel
 
@@ -42,6 +47,11 @@ fun DashboardScreen(
     val glassDepth by viewModel.glassDepth.collectAsState()
     val threatLevel by viewModel.globalThreatLevel.collectAsState()
     val threatIncidents by viewModel.threatIncidents.collectAsState()
+    val cyberNodes by viewModel.cyberNodes.collectAsState()
+    val activeNeuralRoutes by viewModel.activeNeuralRoutes.collectAsState()
+    val prioritizedTasks by viewModel.prioritizedTasks.collectAsState()
+    val selectedCyberRouteId by viewModel.selectedCyberRouteId.collectAsState()
+    val selectedCyberNodeId by viewModel.selectedCyberNodeId.collectAsState()
 
     LazyColumn(
         modifier = Modifier
@@ -58,57 +68,12 @@ fun DashboardScreen(
             )
         }
 
-        // Volumetric Glass Depth & System Mode Bar
+        // Volumetric Quantum Glass Engine & Frosted Depth Showcase
         item {
-            QuantumGlassCard(
-                borderColor = PhotonicCyan.copy(alpha = 0.3f),
-                backgroundColor = SpaceCobaltSurface
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(
-                            text = "QUANTUM GLASS DEPTH",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = PhotonicCyanLight
-                        )
-                        Text(
-                            text = glassDepth,
-                            style = MaterialTheme.typography.titleSmall,
-                            color = AmbientWhite,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        listOf("2D Clean", "2.5D Volumetric", "3D Quantum").forEach { mode ->
-                            val isSelected = glassDepth.startsWith(mode.take(2))
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(if (isSelected) PhotonicCyan.copy(alpha = 0.25f) else SpaceCobaltGlass)
-                                    .border(
-                                        1.dp,
-                                        if (isSelected) PhotonicCyan else SpaceCobaltGlassBorder,
-                                        RoundedCornerShape(6.dp)
-                                    )
-                                    .clickable { viewModel.setGlassDepth("$mode Volumetric") }
-                                    .padding(horizontal = 8.dp, vertical = 6.dp)
-                            ) {
-                                Text(
-                                    text = mode.take(3),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = if (isSelected) PhotonicCyan else AmbientWhiteMuted,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+            VolumetricFrostedGlassShowcase(
+                currentDepth = glassDepth,
+                onDepthChanged = { viewModel.setGlassDepth(it) }
+            )
         }
 
         // Active Threat Alert Banner (If Any)
@@ -148,6 +113,36 @@ fun DashboardScreen(
                     }
                 }
             }
+        }
+
+        // Real-Time Recharts Telemetry Sanitization & Cyber-Node Flow Visualizer
+        item {
+            RechartsTelemetrySanitizationVisualizer(
+                viewModel = viewModel
+            )
+        }
+
+        // Real-Time Canvas Node Connection Graph: Neural Intent Routing Traffic
+        item {
+            NeuralIntentNodeConnectionGraph(
+                cyberNodes = cyberNodes,
+                routes = activeNeuralRoutes,
+                activeTasks = prioritizedTasks,
+                selectedRouteId = selectedCyberRouteId,
+                selectedNodeId = selectedCyberNodeId,
+                onSelectRoute = { routeId -> viewModel.selectCyberRoute(routeId) },
+                onSelectNode = { nodeId -> viewModel.selectCyberNode(nodeId) },
+                onDispatchRouteIntent = { routeId -> viewModel.dispatchNeuralRoutePacket(routeId) }
+            )
+        }
+
+        // Hardware Sensor CSPRNG Physical Entropy Harvester Card
+        item {
+            val entropyState by viewModel.hardwareSensorEntropyState.collectAsState()
+            com.example.ui.components.HardwareSensorEntropyCard(
+                entropyState = entropyState,
+                onForceReseed = { viewModel.forceHardwareSensorReseed() }
+            )
         }
 
         // Cyber-Node Architecture Canvas Spotlight Card
@@ -217,6 +212,78 @@ fun DashboardScreen(
                     PhotonicBadge(
                         text = "512-BIT ENCLAVE",
                         signalColor = QuantumVioletLight
+                    )
+                }
+            }
+        }
+
+        // Neural Intent Router Spotlight Card
+        item {
+            QuantumGlassCard(
+                borderColor = OperationalEmerald.copy(alpha = 0.6f),
+                backgroundColor = SpaceCobaltGlassElevated,
+                onClick = { onNavigateToTab(2) }
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.AltRoute,
+                            contentDescription = "Neural Intent Router",
+                            tint = OperationalEmerald,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = "NEURAL INTENT ROUTER & SCORING",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = OperationalEmeraldLight,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Action Categorization & Dynamic Task Prioritization",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = AmbientWhite,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = "Launch Intent Router",
+                        tint = OperationalEmerald
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Categorizes user actions into 5 cognitive intent domains and dynamically orders execution queues using multi-variable intent scoring.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = AmbientWhiteMuted,
+                    fontSize = 11.sp
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    PhotonicBadge(
+                        text = "5 INTENT DOMAINS",
+                        signalColor = OperationalEmerald
+                    )
+                    PhotonicBadge(
+                        text = "REAL-TIME SCORING",
+                        signalColor = PhotonicCyan
+                    )
+                    PhotonicBadge(
+                        text = "P1..P4 QUEUES",
+                        signalColor = SolarAmber
                     )
                 }
             }
@@ -534,6 +601,62 @@ fun DashboardScreen(
                         text = "RE-KEY: ${enclaveKey.rotationRemainingSec}s",
                         style = MaterialTheme.typography.labelSmall,
                         color = OperationalEmerald
+                    )
+                }
+            }
+        }
+
+        // Security Documentation & ECTT Protocol Library Card
+        item {
+            QuantumGlassCard(
+                borderColor = PhotonicCyan.copy(alpha = 0.5f),
+                backgroundColor = SpaceCobaltGlassElevated,
+                onClick = { viewModel.setSecurityDocsVisible(true) }
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(PhotonicCyan.copy(alpha = 0.15f))
+                                .border(1.dp, PhotonicCyan.copy(alpha = 0.4f), RoundedCornerShape(8.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MenuBook,
+                                contentDescription = "Security Docs",
+                                tint = PhotonicCyan,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = "SECURITY DOCUMENTATION & ECTT",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = PhotonicCyan,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Zero-Trust Architecture • STRIDE Matrix • NIST FIPS 203/204",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = AmbientWhiteMuted
+                            )
+                        }
+                    }
+
+                    PhotonicBadge(
+                        text = "EXPLORE DOCS",
+                        signalColor = PhotonicCyan,
+                        icon = Icons.Default.Article
                     )
                 }
             }

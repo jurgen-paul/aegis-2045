@@ -314,4 +314,112 @@ data class TelemetryAnomalyAlert(
     val cryptographicFingerprint: String
 )
 
+enum class SanitizationScanPhase(val label: String, val stepNumber: Int) {
+    IDLE("Idle / Ready", 0),
+    INGRESS_HEADER_INSPECTION("Stage 1/5: Ingress Packet Header Inspection", 1),
+    PII_AND_TOKEN_SCRUBBING("Stage 2/5: Differential Privacy & PII Scrubbing", 2),
+    POST_QUANTUM_LATTICE_VERIFICATION("Stage 3/5: Kyber-1024 Lattice Attestation", 3),
+    HARDWARE_ENCLAVE_ISOLATION_CHECK("Stage 4/5: Hardware Enclave Memory Check", 4),
+    COMPLETED_AND_SEALED("Stage 5/5: Zero-Leak Cryptographic Seal Complete", 5)
+}
+
+data class SanitizationScanFeedback(
+    val scanId: String,
+    val timestamp: Long = System.currentTimeMillis(),
+    val isEnclaveSealed: Boolean = true,
+    val enclaveKeyAlgorithm: String = "Kyber-1024 / Dilithium-5 (512-bit)",
+    val hardwareSlot: String = "eUICC Enclave Core #04",
+    val memoryAddress: String = "0x7FFF_8000_9000_PQE",
+    val latticeStatus: String = "NIST FIPS 203/204 MATRICES VERIFIED",
+    val quantumResistanceScore: Int = 100,
+    val packetsScanned: Int = 142,
+    val piiTokensScrubbed: Int = 18,
+    val threatsNeutralizedCount: Int = 0,
+    val differentialEpsilon: Float = 0.5f,
+    val dilithiumProofDigest: String,
+    val isolationStatus: String = "HARDWARE_MEMORY_BARRIER_INTACT",
+    val summary: String
+)
+
+// ==========================================
+// NEURAL INTENT ROUTER & DYNAMIC TASK PRIORITIZATION
+// ==========================================
+
+enum class UserActionCategory(
+    val title: String,
+    val subtitle: String,
+    val baseImpactWeight: Int,
+    val hexColor: String
+) {
+    CRITICAL_SECURITY(
+        title = "Critical Security",
+        subtitle = "Hardware enclave locking, key revocation, threat quarantine",
+        baseImpactWeight = 40,
+        hexColor = "#F43F5E"
+    ),
+    IDENTITY_ATTESTATION(
+        title = "Identity Attestation",
+        subtitle = "Biometric challenge, passkey tokens, StrongBox hardware attestation",
+        baseImpactWeight = 30,
+        hexColor = "#8B5CF6"
+    ),
+    DATA_TRANSMISSION(
+        title = "ECTT Telemetry Egress",
+        subtitle = "Differential privacy packet stream, audit log sync, cross-domain bridge",
+        baseImpactWeight = 25,
+        hexColor = "#06B6D4"
+    ),
+    SYSTEM_OPTIMIZATION(
+        title = "System Optimization",
+        subtitle = "Memory zeroization scrub, lattice integrity check, latency recalibration",
+        baseImpactWeight = 20,
+        hexColor = "#10B981"
+    ),
+    ROUTINE_MONITORING(
+        title = "Routine Monitoring",
+        subtitle = "Node health checks, mesh topology telemetry, ambient status queries",
+        baseImpactWeight = 10,
+        hexColor = "#F59E0B"
+    )
+}
+
+enum class PriorityTier(val label: String, val badgeLabel: String, val minScore: Int) {
+    TIER_P1_CRITICAL("Tier-1 Critical", "P1 • CRITICAL", 85),
+    TIER_P2_HIGH("Tier-2 High", "P2 • HIGH", 65),
+    TIER_P3_MEDIUM("Tier-3 Medium", "P3 • MEDIUM", 40),
+    TIER_P4_LOW("Tier-4 Low", "P4 • LOW", 0)
+}
+
+enum class NeuralTaskStatus(val label: String) {
+    QUEUED("In Queue"),
+    EVALUATING_INTENT("Scoring Intent..."),
+    EXECUTING("Executing Route..."),
+    COMPLETED("Successfully Routed"),
+    CANCELLED("Purged by Operator")
+}
+
+data class IntentScoringBreakdown(
+    val intentConfidence: Float, // 0.0 to 1.0 (e.g. 0.94 = 94%)
+    val urgencyWeight: Float, // 1.0 to 10.0
+    val securityImpact: Float, // 1.0 to 10.0
+    val enclaveRequirement: Boolean,
+    val finalPriorityScore: Int, // 1 to 100
+    val computedTier: PriorityTier
+)
+
+data class PrioritizedNeuralTask(
+    val id: String,
+    val actionTitle: String,
+    val rawActionDescription: String,
+    val category: UserActionCategory,
+    val scoringBreakdown: IntentScoringBreakdown,
+    val priorityScore: Int,
+    val priorityTier: PriorityTier,
+    val status: NeuralTaskStatus = NeuralTaskStatus.QUEUED,
+    val targetNode: String,
+    val timestamp: Long = System.currentTimeMillis(),
+    val estimatedLatencyMs: Int = 18,
+    val executionLog: String? = null
+)
+
 

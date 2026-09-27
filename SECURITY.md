@@ -4,6 +4,16 @@
 
 ---
 
+## 📚 Security Documentation & ECTT Technical Library
+Comprehensive architectural, compliance, and protocol specifications are available in the repository documentation suite:
+- 🛡️ **[Security Architecture Specification](docs/SECURITY_ARCHITECTURE.md)**: Deep dive into zero-trust computing, Android StrongBox hardware binding, 512-bit post-quantum lattice cryptography, 4-pass memory zeroization, and STRIDE/DREAD threat matrices.
+- ⚡ **[ECTT Telemetry Protocol Specification](docs/ECTT_TELEMETRY_PROTOCOL.md)**: Standardized wire format for Encrypted Cryptographic Telemetry Transmission, 5-stage packet sanitization scan, differential privacy ($\epsilon=0.5$), and automated threat triage.
+- 📜 **[Compliance, Standards & Regulatory Audit](docs/COMPLIANCE_AND_STANDARDS.md)**: Formal mappings to NIST FIPS 203/204/205, Android StrongBox Keymaster, Google Play Zero-Storage Permission Compliance, and OWASP Mobile Top 10.
+- 🌐 **[Project Website, FLOSS Governance & OpenSSF Best Practices](docs/PROJECT_WEBSITE_AND_GOVERNANCE.md)**: OpenSSF criteria, Apache 2.0 FLOSS license, bug tracking, build systems, US export controls, and cryptographic good practices.
+- 🔌 **[OpenAPI 3.0.3 Security Specification](docs/API_SECURITY_SPECIFICATION.yaml)**: Complete REST & Telemetry endpoints with Dilithium-5 and Biometric Attestation security schemes.
+
+---
+
 ## 📑 Table of Contents
 1. [Zero-Trust Principles & Sovereign Architectural Axioms](#1-zero-trust-principles--sovereign-architectural-axioms)
 2. [Biometric Credential Manager & Hardware Enclave Integration](#2-biometric-credential-manager--hardware-enclave-integration)
@@ -14,6 +24,7 @@
 7. [Threat Modeling & Heuristic Quarantine Matrix](#7-threat-model--heuristic-quarantine-matrix)
 8. [Audit Logging & Cryptographic Non-Repudiation](#8-audit-logging--cryptographic-non-repudiation)
 9. [Vulnerability Disclosure & Security SLA Commitments](#9-vulnerability-disclosure--security-sla-commitments)
+10. [Good Cryptographic Practices & US Export Controls (EAR §740.13(e))](#10-good-cryptographic-practices--us-export-controls-ear-74013e)
 
 ---
 
@@ -251,6 +262,40 @@ We welcome responsible security research on the AGIS 2045 platform.
 - **Initial Triage & Confirmation**: Within **24 hours**.
 - **Remediation & Patch Deployment**: Within **72 hours** for Critical/High severity advisories.
 - **Public Disclosure**: Coordinated after verification of patch deployment across all active nodes.
+
+---
+
+## 10. Good Cryptographic Practices & US Export Controls (EAR §740.13(e))
+
+### 10.1 US Export Controls Compliance
+AGIS 2045 produces software implementing post-quantum and classical cryptographic functionality. Under **EAR §740.13(e) (TSU)** and **ECCN 5D002**, public open-source encryption source code is eligible for export upon one-time notification to the US Bureau of Industry and Security (BIS) and the NSA:
+- **Notification Destination**: `crypt@bis.doc.gov` and `enc@nsa.gov`
+- **Notice Contents**: Public repository location `https://github.com/your-org/agis-2045` and cryptographic primitive declarations.
+
+### 10.2 Strict Prohibition of Broken Cryptographic Algorithms
+The system enforces a zero-tolerance policy against deprecated or mathematically compromised algorithms:
+- **Prohibited**: MD4, MD5, single DES, 3DES, RC4, Dual_EC_DRBG, and AES-ECB mode.
+- **Approved Modern Standards**: SHA-512, SHA-256, AES-256-GCM, and ChaCha20-Poly1305.
+- **Zero Broken Ciphers for Interoperability**: AGIS 2045 requires zero legacy broken ciphers for network interoperation.
+
+### 10.3 Expert-Reviewed, Standardized Cryptographic Algorithms
+The platform uses solely publicly published algorithms standardized by international standards bodies:
+- **NIST FIPS 203**: CRYSTALS-Kyber-1024 Key Encapsulation Mechanism.
+- **NIST FIPS 204**: CRYSTALS-Dilithium-5 Digital Signature Algorithm.
+- **NIST SP 800-38D**: AES-256-GCM authenticated encryption with associated data (AEAD).
+- **RFC 5869**: HKDF-SHA512 key derivation function.
+- **RFC 8446**: TLS 1.3 transport security.
+
+### 10.4 Perfect Forward Secrecy (PFS) `[crypto_pfs]`
+Key agreement protocols enforce Perfect Forward Secrecy:
+- Ephemeral Kyber-1024 session keypairs rotate on a continuous **60-second lifecycle**.
+- Compromise of long-term node master credentials does not allow an adversary to decrypt past session data.
+- Automated 4-pass memory zeroization (`0x00` $\to$ `0xFF` $\to$ CSPRNG $\to$ `0xAA`) purges ephemeral key residue from memory.
+
+### 10.5 Man-in-the-Middle (MITM) Defense & Vulnerability Management
+- All network channels mandate **TLS 1.3** with certificate pinning.
+- Telemetry streams are validated via **Dilithium-5** digital signatures.
+- Continuous dependency scanning against the NVD database; all Critical/High CVEs patched within 72 hours.
 
 ---
 

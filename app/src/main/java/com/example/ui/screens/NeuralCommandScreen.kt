@@ -23,6 +23,8 @@ import com.example.data.NeuralCommandEntity
 import com.example.ui.animation.QuantumVolumetricButton
 import com.example.ui.animation.volumetricQuantumGlass
 import com.example.ui.components.CyberNodeArchitectureVisualizer
+import com.example.ui.components.NeuralIntentNodeConnectionGraph
+import com.example.ui.components.NeuralIntentRouterView
 import com.example.ui.components.NeuralIntentRoutingDashboard
 import com.example.ui.components.PhotonicBadge
 import com.example.ui.components.QuantumGlassCard
@@ -38,7 +40,12 @@ fun NeuralCommandScreen(
     var promptInput by remember { mutableStateOf("") }
     var selectedDomain by remember { mutableStateOf("local.enclave.core") }
     var isCrossDomain by remember { mutableStateOf(false) }
-    var selectedSubTab by remember { mutableStateOf(0) } // 0: Cyber-Node Architecture Canvas, 1: Intent Stream, 2: Dispatch Studio
+    var selectedSubTab by remember { mutableStateOf(0) } // 0: Neural Intent Router, 1: Cyber-Node Canvas, 2: Intent Stream, 3: Dispatch Studio
+
+    val prioritizedTasks by viewModel.prioritizedTasks.collectAsState()
+    val selectedTaskFilter by viewModel.selectedTaskCategoryFilter.collectAsState()
+    val intentRouterSearchQuery by viewModel.intentRouterSearchQuery.collectAsState()
+    val isEvaluatingAction by viewModel.isEvaluatingAction.collectAsState()
 
     val pendingConfirmation by viewModel.pendingConfirmation.collectAsState()
     val neuralCommands by viewModel.neuralCommands.collectAsState()
@@ -222,9 +229,10 @@ fun NeuralCommandScreen(
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     listOf(
-                        "CYBER-NODE MESH",
-                        "INTENT STREAM",
-                        "DISPATCH STUDIO"
+                        "INTENT ROUTER",
+                        "CYBER-NODES",
+                        "STREAM GRAPH",
+                        "DISPATCH"
                     ).forEachIndexed { index, label ->
                         val isSelected = selectedSubTab == index
                         Box(
@@ -246,7 +254,8 @@ fun NeuralCommandScreen(
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                                 color = if (isSelected) PhotonicCyan else AmbientWhiteMuted,
-                                fontSize = 10.sp
+                                fontSize = 9.sp,
+                                maxLines = 1
                             )
                         }
                     }
@@ -254,8 +263,37 @@ fun NeuralCommandScreen(
             }
         }
 
-        // Sub-Tab 0: Cyber-Node Architecture Canvas Visualization
+        // Sub-Tab 0: Neural Intent Router Interface (Action Categorization & Dynamic Task Prioritization)
         if (selectedSubTab == 0) {
+            item {
+                NeuralIntentRouterView(
+                    prioritizedTasks = prioritizedTasks,
+                    selectedCategoryFilter = selectedTaskFilter,
+                    searchQuery = intentRouterSearchQuery,
+                    isEvaluating = isEvaluatingAction,
+                    onSelectFilter = { viewModel.setTaskCategoryFilter(it) },
+                    onSearchQueryChange = { viewModel.setIntentRouterSearchQuery(it) },
+                    onSubmitAction = { action, urgency -> viewModel.submitUserActionForRouting(action, urgency) },
+                    onExecuteTask = { taskId -> viewModel.executePrioritizedTask(taskId) },
+                    onAdjustUrgency = { taskId, newUrgency -> viewModel.updateTaskUrgency(taskId, newUrgency) },
+                    onPurgeTask = { taskId -> viewModel.purgePrioritizedTask(taskId) },
+                    onResetQueue = { viewModel.resetPrioritizedTasks() }
+                )
+            }
+        } else if (selectedSubTab == 1) {
+            // Sub-Tab 1: Real-Time Node Connection Graph & Cyber-Node Architecture
+            item {
+                NeuralIntentNodeConnectionGraph(
+                    cyberNodes = cyberNodes,
+                    routes = activeNeuralRoutes,
+                    activeTasks = prioritizedTasks,
+                    selectedRouteId = selectedCyberRouteId,
+                    selectedNodeId = selectedCyberNodeId,
+                    onSelectRoute = { routeId -> viewModel.selectCyberRoute(routeId) },
+                    onSelectNode = { nodeId -> viewModel.selectCyberNode(nodeId) },
+                    onDispatchRouteIntent = { routeId -> viewModel.dispatchNeuralRoutePacket(routeId) }
+                )
+            }
             item {
                 CyberNodeArchitectureVisualizer(
                     cyberNodes = cyberNodes,
@@ -269,8 +307,8 @@ fun NeuralCommandScreen(
                     onDispatchPacket = { routeId -> viewModel.dispatchNeuralRoutePacket(routeId) }
                 )
             }
-        } else if (selectedSubTab == 1) {
-            // Sub-Tab 1: Neural Intent Routing Diagnostic Dashboard
+        } else if (selectedSubTab == 2) {
+            // Sub-Tab 2: Neural Intent Routing Diagnostic Dashboard
             item {
                 NeuralIntentRoutingDashboard(
                     intentStream = intentStream,
@@ -283,7 +321,7 @@ fun NeuralCommandScreen(
                 )
             }
         } else {
-            // Sub-Tab 2: Interactive Glass Input Pane & Execution Ledger
+            // Sub-Tab 3: Interactive Glass Input Pane & Execution Ledger
             item {
                 QuantumGlassCard(
                     borderColor = PhotonicCyan.copy(alpha = 0.4f),
