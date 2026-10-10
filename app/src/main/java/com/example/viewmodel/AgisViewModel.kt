@@ -10,6 +10,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.*
 import com.example.model.*
+import com.example.neural.NeuralGestureIntentHandler
+import com.example.neural.NeuralHapticFeedbackManager
 import com.example.security.BiometricCredentialAuthManager
 import com.example.service.HardwareSensorEntropyService
 import com.example.service.TelemetryAnomalyNotificationService
@@ -68,6 +70,37 @@ class AgisViewModel(application: Application) : AndroidViewModel(application) {
     // Active Tab / Destination
     private val _selectedTab = MutableStateFlow(0)
     val selectedTab: StateFlow<Int> = _selectedTab.asStateFlow()
+
+    // High-Fidelity Haptic Feedback Manager
+    val neuralHapticManager by lazy {
+        NeuralHapticFeedbackManager(getApplication<Application>().applicationContext)
+    }
+
+    // ViewModel-Based Neural Gesture Intent Handler
+    val neuralGestureHandler: NeuralGestureIntentHandler by lazy {
+        NeuralGestureIntentHandler(
+            coroutineScope = viewModelScope,
+            hapticManager = neuralHapticManager,
+            onNavigateToTab = { tab -> setSelectedTab(tab) },
+            onNavigateRelative = { delta ->
+                val current = _selectedTab.value
+                val next = (current + delta).coerceIn(0, 6)
+                setSelectedTab(next)
+            },
+            onPurgeTelemetry = {
+                sanitizeRawTelemetry(_rawTelemetryInput.value)
+            },
+            onTriggerValidation = {
+                runAutonomousValidation()
+            },
+            onReseedEntropy = {
+                forceHardwareSensorReseed()
+            },
+            onAlert = { msg ->
+                _systemAlertMessage.value = msg
+            }
+        )
+    }
 
     // Selected Layer for Inspection
     private val _inspectedLayerId = MutableStateFlow(1)

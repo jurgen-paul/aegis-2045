@@ -23,6 +23,7 @@ import com.example.data.NeuralCommandEntity
 import com.example.ui.animation.QuantumVolumetricButton
 import com.example.ui.animation.volumetricQuantumGlass
 import com.example.ui.components.CyberNodeArchitectureVisualizer
+import com.example.ui.components.NeuralGesturePathwayHUD
 import com.example.ui.components.NeuralIntentNodeConnectionGraph
 import com.example.ui.components.NeuralIntentRouterView
 import com.example.ui.components.NeuralIntentRoutingDashboard
@@ -232,7 +233,8 @@ fun NeuralCommandScreen(
                         "INTENT ROUTER",
                         "CYBER-NODES",
                         "STREAM GRAPH",
-                        "DISPATCH"
+                        "DISPATCH",
+                        "GESTURES"
                     ).forEachIndexed { index, label ->
                         val isSelected = selectedSubTab == index
                         Box(
@@ -320,7 +322,7 @@ fun NeuralCommandScreen(
                     }
                 )
             }
-        } else {
+        } else if (selectedSubTab == 3) {
             // Sub-Tab 3: Interactive Glass Input Pane & Execution Ledger
             item {
                 QuantumGlassCard(
@@ -510,6 +512,14 @@ fun NeuralCommandScreen(
 
             items(neuralCommands, key = { it.id }) { cmd ->
                 NeuralCommandItemCard(cmd)
+            }
+        } else {
+            // Sub-Tab 4: Neural Gesture Intent Handler & Synaptic Pathway HUD
+            item {
+                NeuralGesturePathwayHUD(
+                    handler = viewModel.neuralGestureHandler,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }

@@ -22,7 +22,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.model.AgisArchitectureConstants
 import com.example.model.ThreatSeverity
+import com.example.ui.components.AgisVolumetricGlassCard
+import com.example.ui.components.AgisVolumetricGlassDiagnosticPanel
 import com.example.ui.components.BiometricHeader
+import com.example.ui.components.NeuralGesturePathwayHUD
 import com.example.ui.components.NeuralIntentNodeConnectionGraph
 import com.example.ui.components.PhotonicBadge
 import com.example.ui.components.QuantumGlassCard
@@ -73,6 +76,22 @@ fun DashboardScreen(
             VolumetricFrostedGlassShowcase(
                 currentDepth = glassDepth,
                 onDepthChanged = { viewModel.setGlassDepth(it) }
+            )
+        }
+
+        // Custom Volumetric Glass UI Component (Compose Modifiers, Depth, & Transparency)
+        item {
+            AgisVolumetricGlassDiagnosticPanel(
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        // Neural Gesture Intent Handler & Synaptic Pathway HUD
+        item {
+            NeuralGesturePathwayHUD(
+                handler = viewModel.neuralGestureHandler,
+                modifier = Modifier.fillMaxWidth(),
+                onNavigateToTab = onNavigateToTab
             )
         }
 

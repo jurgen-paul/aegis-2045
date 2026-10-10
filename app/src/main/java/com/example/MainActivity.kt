@@ -34,6 +34,7 @@ import com.example.ui.animation.PhotonicSignalPulseIndicator
 import com.example.ui.animation.QuantumFluidCrossfade
 import com.example.ui.components.EnclaveStatusOverlay
 import com.example.ui.components.PhotonicBadge
+import com.example.ui.components.QuantumDataFlowParticleBackground
 import com.example.ui.components.SecurityDocumentationOverlay
 import com.example.ui.screens.*
 import com.example.ui.theme.*
@@ -217,6 +218,12 @@ fun AgisMainApp(viewModel: AgisViewModel) {
                 .padding(innerPadding)
                 .background(SpaceCobaltDark)
         ) {
+            // Subtle Animated Particle Background Effect simulating real-time quantum data flow across UI elements
+            QuantumDataFlowParticleBackground(
+                modifier = Modifier.fillMaxSize(),
+                threatSeverity = threatSeverity
+            )
+
             // Screen Switcher with Fluid Quantum Crossfade
             QuantumFluidCrossfade(
                 targetState = selectedTabIndex,

@@ -1,10 +1,48 @@
 package com.example
 
+import com.example.ui.components.OpticalGlassMaterial
 import com.example.ui.components.QuantumGlassDepthLevel
+import com.example.ui.modifiers.VolumetricGlassConfig
 import org.junit.Assert.*
 import org.junit.Test
 
 class VolumetricQuantumGlassTest {
+
+    @Test
+    fun testVolumetricGlassConfigDefaults() {
+        val config = VolumetricGlassConfig()
+        assertTrue("Virtual thickness must be positive", config.thicknessMm > 0f)
+        assertTrue("Refractive index must be >= 1.0", config.refractiveIndex >= 1.0f)
+        assertTrue("Frosted roughness must be in [0, 1]", config.frostedRoughness in 0f..1f)
+        assertTrue("Specular intensity must be in [0, 1]", config.specularIntensity in 0f..1f)
+        assertTrue("Max tilt angle must be positive", config.maxTiltAngleDegrees > 0f)
+    }
+
+    @Test
+    fun testOpticalGlassMaterialProperties() {
+        val materials = OpticalGlassMaterial.values()
+        assertEquals("4 optical materials defined", 4, materials.size)
+
+        val cryo = OpticalGlassMaterial.CRYO_FLUID
+        val crown = OpticalGlassMaterial.CROWN_GLASS
+        val sapphire = OpticalGlassMaterial.SAPPHIRE_CRYSTAL
+        val diamond = OpticalGlassMaterial.DIAMOND_ENCLAVE
+
+        assertTrue("Cryo index < Crown index", cryo.refractiveIndex < crown.refractiveIndex)
+        assertTrue("Crown index < Sapphire index", crown.refractiveIndex < sapphire.refractiveIndex)
+        assertTrue("Sapphire index < Diamond index", sapphire.refractiveIndex < diamond.refractiveIndex)
+
+        // Abbe numbers should be positive
+        materials.forEach {
+            assertTrue("Abbe number must be positive", it.abbeNumber > 0f)
+            assertTrue("Thickness must be positive", it.virtualThicknessMm > 0f)
+        }
+
+        // Test fromIndex
+        assertEquals(OpticalGlassMaterial.CRYO_FLUID, OpticalGlassMaterial.fromIndex(0))
+        assertEquals(OpticalGlassMaterial.DIAMOND_ENCLAVE, OpticalGlassMaterial.fromIndex(3))
+        assertEquals(OpticalGlassMaterial.SAPPHIRE_CRYSTAL, OpticalGlassMaterial.fromIndex(99)) // default
+    }
 
     @Test
     fun testDepthLevelParsing() {
